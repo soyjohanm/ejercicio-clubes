@@ -1,2 +1,6 @@
-#modal { top: 2% !important; }
+.modal {
+  width: 75% !important;
+  border-radius: 15px !important;
+}
+.modal-footer { background-color: #f2f2f2 !important; }
 .card { cursor: pointer !important; }

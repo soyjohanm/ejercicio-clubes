@@ -11,10 +11,10 @@
 ?>
 <div class="container center">
   <h1 style="text-align: center"><?php echo ucwords($fila['nombre']." ".$fila['apellido1']." ".$fila['apellido2']); ?></h1>
-  <center><a href="#" id="volver" class="btn-flat">VOLVER</a></center>
+  <a href="#" id="volver" class="btn-flat left">VOLVER</a>
+  <button type="button" class="btn-flat right modal-trigger" data-target="modal1">+ Nuevo tratamiento</button><br><br>
   <hr style="background-color: black; height: 15px;">
   <div class="row">
-    <button type="button" class="btn btn-flat right modal-trigger" data-target="modal1">+ Nuevo tratamiento</button><br>
     <table class="striped centered">
       <thead style="background-color: black; color: white">
         <tr>
