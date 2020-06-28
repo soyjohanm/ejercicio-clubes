@@ -3,16 +3,16 @@
   session_start();
   if (!empty($_POST['id'])) {
     $_SESSION['serie'] = $_POST['id'];
-    $json = array();
   }
   $sql = "SELECT nombre, sexo FROM series WHERE id=".$_SESSION['serie']."";
   $resultado = mysqli_query($conexion, $sql) or die ("Error en el query database.");
   $fila = mysqli_fetch_array($resultado);
   mysqli_free_result($resultado);
+  $_SESSION['sexo'] = $fila['sexo'];
 ?>
 <div class="container center">
   <h1 style="text-transform: uppercase; text-align: center;">
-    <?php echo $fila['nombre']; echo ($fila['sexo'] == 'F') ? ' Femenino' : ' Masculino'; ?>
+    <?php echo $fila['nombre']; echo ($_SESSION['sexo'] == 'F') ? ' Femenino' : ' Masculino'; ?>
   </h1>
   <a href="./" class="btn-flat left">VOLVER</a>
   <button type="button" class="btn-flat right modal-trigger" data-target="nuevoJugador">+ NUEVO JUGADOR</button><br><br>
@@ -38,10 +38,6 @@
       <tbody>
         <?php foreach ($conexion->query('SELECT * FROM jugadores INNER JOIN posicion ON jugadores.id=posicion.id
           WHERE serieActual='.$_SESSION['serie'].'') as $serie): ?>
-          <?php
-            $posicion = array($serie['posicion'] => NULL);
-            $json = array_merge($posicion, $json);
-          ?>
           <tr>
             <td><?php echo $serie['id']; ?></td>
             <td><?php echo $serie['posicion']; ?></td>
@@ -52,21 +48,20 @@
             <td><?php echo $edad->format('%y'); ?></td>
             <td><?php echo "(".$serie['informes'].") ".(($serie['informes']>1) ? "informes" : "informe"); ?></td>
             <td>
-              <button class='btn-flat' id='editar' data-id="<?php echo $serie['id']; ?>">
-                <?php echo (($serie['informes']==0) ? "Agregar" : "Editar"); ?>
+              <button class="btn-flat" id='editar' data-id="<?php echo $serie['id']; ?>">
+                <?php echo (($serie['informes']==0) ? '<svg style="width: 2.2rem; height: 2.6rem;"><use href="./iconos.svg#agrega"/></svg>' : '<svg style="width:3rem;height:4rem;"><use href="./iconos.svg#editar"/></svg>'); ?>
               </button>
-              <button class='btn-flat' id='eliminar' data-id="<?php echo $serie['id']; ?>">Eliminar</button>
+              <button class="btn-flat" id='eliminar' data-id="<?php echo $serie['id']; ?>"><svg style="width: 2.5rem; height: 2.6rem;"><use href="./iconos.svg#elimina"/></svg></button>
             </td>
           </tr>
         <?php endforeach; ?>
-        <?php $datos = json_encode($json); ?>
       </tbody>
     </table>
   </div>
 </div>
 
 <div class="modal" id="nuevoJugador">
-  <form method="post" role="form" autocomplete="off">
+  <form method="post" role="form" autocomplete="off" id="formularioJugador" name="formularioJugador">
     <div class="modal-content">
       <h4 style="text-transform: uppercase;">Añadir nuevo jugador<span class="right modal-close" title="Cerrar">&times;</span></h4>
       <div class="divider"></div><br>
@@ -93,7 +88,7 @@
           <div class="input-field col l4 m6 s12">
             <fieldset>
               <legend>Fecha de nacimiento</legend>
-              <input name="nacimientoJugador" type="date" min="0" required>
+              <input name="nacimientoJugador" type="date" max="<?php echo date('Y-m-d'); ?>" required>
             </fieldset>
           </div>
           <div class="input-field col l4 m12 s12">
@@ -107,7 +102,7 @@
     </div>
     <div class="modal-footer">
       <div class="container">
-        <button type="submit" name="guardar" id="guardar" class="btn-flat">Guardar</button>
+        <button type="submit" name="guardar" id="guardar" class="btn-flat modal-close">Guardar</button>
       </div>
     </div>
   </form>
@@ -130,19 +125,24 @@
     }
   };
   $(document).ready(function(){
-    var data = JSON.stringify({
-        "Apple": null,
-        "Microsoft": null,
-        "Google": 'https://placehold.it/250x250'
-      });
-    console.log(data);
     $('.modal').modal();
-    $('input.autocomplete').autocomplete({
-      data: {
-        "Apple": null,
-        "Microsoft": null,
-        "Google": 'https://placehold.it/250x250'
-      },
+    $(function() {
+      $.ajax({
+        type: 'GET',
+        url: './archivos/funciones.php',
+        data: { funcion: 'datos' },
+        success: function(response) {
+          var posicionArray = response;
+          var datosPosicion = {};
+          for (var i = 0; i < posicionArray.length; i++) {
+            datosPosicion[posicionArray[i].posicion] = posicionArray[i].flag;
+          }
+          $('input.autocomplete').autocomplete({
+            data: datosPosicion,
+            limit: 1
+          });
+        }
+      });
     });
   });
   $(document).on('click', '#editar', function() {
@@ -154,5 +154,20 @@
         $('#cuerpo').html(data);
       }
     });
+  });
+  $('#formularioJugador').submit(function(event) {
+    var parametros = $(this).serialize() + '&funcion=nuevoJugador';
+    $.ajax({
+      type: "POST",
+      url: "archivos/funciones.php",
+      data: parametros,
+      success: function(data) {
+        if (data == 'correcto') {
+          M.toast({html: 'Jugador añadido correctamente.', classes: 'green'});
+          $("#cuerpo").load("serie.php");
+        }
+      }
+    });
+    event.preventDefault();
   });
 </script>

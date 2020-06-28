@@ -35,6 +35,7 @@
             <div class="col l3 m4 s6">
               <div class="card grey darken-4" id="serie" data-id="<?php echo $serie['id']; ?>">
                 <div class="card-content white-text center">
+                  <svg style="width: 5rem; height: 8rem;"><use href="./iconos.svg#escudo"/></svg>
                   <div class="divider"></div>
                   <h5 class="card-tittle"><?php echo $serie['nombre']; echo ($serie['sexo'] == 'F') ? ' Femenino' : ' Masculino'; ?></h5>
                   <div class="divider"></div>
