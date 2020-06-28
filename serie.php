@@ -3,14 +3,17 @@
   session_start();
   if (!empty($_POST['id'])) {
     $_SESSION['serie'] = $_POST['id'];
+    $json = array();
   }
-  $sql = "SELECT nombre FROM series WHERE id=".$_SESSION['serie']."";
+  $sql = "SELECT nombre, sexo FROM series WHERE id=".$_SESSION['serie']."";
   $resultado = mysqli_query($conexion, $sql) or die ("Error en el query database.");
   $fila = mysqli_fetch_array($resultado);
   mysqli_free_result($resultado);
 ?>
 <div class="container center">
-  <h1 style="text-transform: uppercase; text-align: center;"><?php echo $fila['nombre']; ?></h1>
+  <h1 style="text-transform: uppercase; text-align: center;">
+    <?php echo $fila['nombre']; echo ($fila['sexo'] == 'F') ? ' Femenino' : ' Masculino'; ?>
+  </h1>
   <a href="./" class="btn-flat left">VOLVER</a>
   <button type="button" class="btn-flat right modal-trigger" data-target="nuevoJugador">+ NUEVO JUGADOR</button><br><br>
   <hr style="background-color: black; height: 15px;">
@@ -35,6 +38,10 @@
       <tbody>
         <?php foreach ($conexion->query('SELECT * FROM jugadores INNER JOIN posicion ON jugadores.id=posicion.id
           WHERE serieActual='.$_SESSION['serie'].'') as $serie): ?>
+          <?php
+            $posicion = array($serie['posicion'] => NULL);
+            $json = array_merge($posicion, $json);
+          ?>
           <tr>
             <td><?php echo $serie['id']; ?></td>
             <td><?php echo $serie['posicion']; ?></td>
@@ -52,51 +59,55 @@
             </td>
           </tr>
         <?php endforeach; ?>
+        <?php $datos = json_encode($json); ?>
       </tbody>
     </table>
   </div>
 </div>
 
 <div class="modal" id="nuevoJugador">
-  <div class="modal-content">
-    <center>
+  <form method="post" role="form" autocomplete="off">
+    <div class="modal-content">
       <h4 style="text-transform: uppercase;">Añadir nuevo jugador<span class="right modal-close" title="Cerrar">&times;</span></h4>
-    </center>
-  </div>
-  <div class="divider"></div>
-  <form method="post" role="form">
-    <div class="container" style="width: 90% !important;">
-      <div class="row">
-        <div class="col l6 m6 s12">
-          <fieldset>
-            <legend>Nombre</legend>
-            <input name="nombreJugador" type="text" placeholder="Nombre del jugador.">
-          </fieldset>
+      <div class="divider"></div><br>
+      <div class="container" style="width: 90% !important;">
+        <div class="row">
+          <div class="input-field col l6 m6 s12">
+            <fieldset>
+              <legend>Nombre</legend>
+              <input name="nombreJugador" type="text" placeholder="Nombre del jugador." required>
+            </fieldset>
+          </div>
+          <div class="input-field col l6 m6 s12">
+            <fieldset>
+              <legend>Apellidos</legend>
+              <input name="apellidoJugador" type="text" placeholder="Apellidos del jugador." required>
+            </fieldset>
+          </div>
+          <div class="input-field col l4 m6 s12">
+            <fieldset>
+              <legend>RUT</legend>
+              <input name="rutJugador" type="number" min="0" placeholder="RUT del jugador." required>
+            </fieldset>
+          </div>
+          <div class="input-field col l4 m6 s12">
+            <fieldset>
+              <legend>Fecha de nacimiento</legend>
+              <input name="nacimientoJugador" type="date" min="0" required>
+            </fieldset>
+          </div>
+          <div class="input-field col l4 m12 s12">
+            <fieldset>
+              <legend>Posición</legend>
+              <input name="posicionJugador" type="text" class="autocomplete" placeholder="Posición del jugador." required>
+            </fieldset>
+          </div>
         </div>
-        <div class="col l6 m6 s12">
-          <fieldset>
-            <legend>Apellidos</legend>
-            <input name="apellidoJugador" type="text" placeholder="Apellidos del jugador.">
-          </fieldset>
-        </div>
-        <div class="col l4 m6 s12">
-          <fieldset>
-            <legend>RUT</legend>
-            <input name="rutJugador" type="number" min="0" placeholder="RUT del jugador.">
-          </fieldset>
-        </div>
-        <div class="col l4 m6 s12">
-          <fieldset>
-            <legend>Fecha de nacimiento</legend>
-            <input name="nacimientoJugador" type="date" min="0">
-          </fieldset>
-        </div>
-        <div class="col l4 m12 s12">
-          <fieldset>
-            <legend>Posición</legend>
-            <input name="posicionJugador" type="text" placeholder="Posición del jugador.">
-          </fieldset>
-        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="container">
+        <button type="submit" name="guardar" id="guardar" class="btn-flat">Guardar</button>
       </div>
     </div>
   </form>
@@ -119,7 +130,20 @@
     }
   };
   $(document).ready(function(){
+    var data = JSON.stringify({
+        "Apple": null,
+        "Microsoft": null,
+        "Google": 'https://placehold.it/250x250'
+      });
+    console.log(data);
     $('.modal').modal();
+    $('input.autocomplete').autocomplete({
+      data: {
+        "Apple": null,
+        "Microsoft": null,
+        "Google": 'https://placehold.it/250x250'
+      },
+    });
   });
   $(document).on('click', '#editar', function() {
     $.ajax({

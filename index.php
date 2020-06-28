@@ -3,6 +3,15 @@
   if (!empty($_COOKIE['serie'])) {
     unset($_COOKIE['serie']);
   }
+  if (isset($_POST['guardar'])) {
+    $nombre = mb_strtoupper($_POST['nombreSerie']);
+    $sexos = $_POST['genero'];
+    foreach ($sexos as $sexo) {
+      $sql = "INSERT INTO series(nombre,sexo) VALUES ('$nombre','$sexo')";
+      $resultado = $conexion->query($sql) or die ('Error en el query database');
+    }
+    if ($resultado) echo "<script>window.onload = function(){ M.toast({html: 'Registro guardado correctamente.', classes: 'green'}); }</script>";
+  }
 ?>
 <!DOCTYPE html>
 <html lang="es" dir="ltr">
@@ -27,7 +36,7 @@
               <div class="card grey darken-4" id="serie" data-id="<?php echo $serie['id']; ?>">
                 <div class="card-content white-text center">
                   <div class="divider"></div>
-                  <h5 class="card-tittle"><?php echo $serie['nombre']; ?></h5>
+                  <h5 class="card-tittle"><?php echo $serie['nombre']; echo ($serie['sexo'] == 'F') ? ' Femenino' : ' Masculino'; ?></h5>
                   <div class="divider"></div>
                   <span>(<?php echo $serie['jugadores']; ?>) Jugadores</span>
                 </div>
@@ -38,6 +47,7 @@
       </div>
     </main>
   </body>
+
   <div class="modal" id="nuevaSerie">
     <form method="post" role="form" autocomplete="off" action="<?php $_SERVER['PHP_SELF']; ?>">
       <div class="modal-content">
@@ -48,27 +58,21 @@
             <div class="col l6 m6 s12">
               <fieldset style="padding-top: 4% !important; padding-bottom: 9% !important;">
                 <legend>Nombre de la serie</legend>
-                <input name="nombreSerie" type="text" placeholder="Nombre de la serie." required>
+                <input name="nombreSerie" type="text" placeholder="Nombre de la serie." maxlength="20" required>
               </fieldset>
             </div>
             <div class="col l6 m6 s12">
               <fieldset style="padding-top: 5% !important;">
                 <legend>Género</legend>
-                <div class="row">
+                <div class="row genero">
                   <div class="col l6">
                     <p>
-                      <label>
-                        <input type='checkbox' name='genero[]' value='F' class="filled-in" required>
-                        <span>Femenino</span>
-                      </label>
+                      <label><input type='checkbox' name='genero[]' value='F' class="filled-in" required><span>Femenino</span></label>
                     </p>
                   </div>
                   <div class="col l6">
                     <p>
-                      <label>
-                        <input type='checkbox' name='genero[]' value='M' class="filled-in" required>
-                        <span>Masculino</span>
-                      </label>
+                      <label><input type='checkbox' name='genero[]' value='M' class="filled-in" required><span>Masculino</span></label>
                     </p>
                   </div>
                 </div>
@@ -78,10 +82,13 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="submit" name="guardar" id="guardar" class="btn-flat">Guardar</button>
+        <div class="container">
+          <button type="submit" name="guardar" id="guardar" class="btn-flat">Guardar</button>
+        </div>
       </div>
     </form>
   </div>
+
   <script type="text/javascript">
     $(document).ready(function(){
       $('.modal').modal();
@@ -94,6 +101,13 @@
         success: function(data) {
           $('#cuerpo').html(data);
         }
+      });
+    });
+    $(function(){
+      var requiredCheckBox = $('.genero :checkbox[required]');
+      requiredCheckBox.change(function(){
+        if (requiredCheckBox.is(':checked')) { requiredCheckBox.removeAttr('required'); }
+        else { requiredCheckBox.attr('required', 'required'); }
       });
     });
   </script>
