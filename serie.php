@@ -9,6 +9,7 @@
   $fila = mysqli_fetch_array($resultado);
   mysqli_free_result($resultado);
   $_SESSION['sexo'] = $fila['sexo'];
+  $i = 0;
 ?>
 <div class="container center">
   <h1 style="text-transform: uppercase; text-align: center;">
@@ -38,8 +39,9 @@
       <tbody>
         <?php foreach ($conexion->query('SELECT * FROM jugadores INNER JOIN posicion ON jugadores.id=posicion.id
           WHERE serieActual='.$_SESSION['serie'].'') as $serie): ?>
-          <tr>
-            <td><?php echo $serie['id']; ?></td>
+          <?php $i++; ?>
+          <tr id="<?php echo $serie['id']; ?>">
+            <td><?php echo $i; ?></td>
             <td><?php echo $serie['posicion']; ?></td>
             <td><?php echo ucwords($serie['nombre'])." ".ucwords($serie['apellido1'])." ".ucwords($serie['apellido2']); ?></td>
             <td class="hide-on-med-and-down"><?php echo $serie['rut']; ?></td>
@@ -48,9 +50,7 @@
             <td><?php echo $edad->format('%y'); ?></td>
             <td><?php echo "(".$serie['informes'].") ".(($serie['informes']>1) ? "informes" : "informe"); ?></td>
             <td>
-              <button class="btn-flat" id='editar' data-id="<?php echo $serie['id']; ?>">
-                <?php echo (($serie['informes']==0) ? '<svg style="width: 2.2rem; height: 2.6rem;"><use href="./iconos.svg#agrega"/></svg>' : '<svg style="width:3rem;height:4rem;"><use href="./iconos.svg#editar"/></svg>'); ?>
-              </button>
+              <button class="btn-flat" id='agregar' data-id="<?php echo $serie['id']; ?>"><svg style="width: 2.2rem; height: 2.6rem;"><use href="./iconos.svg#agrega"/></svg></button>
               <button class="btn-flat" id='eliminar' data-id="<?php echo $serie['id']; ?>"><svg style="width: 2.5rem; height: 2.6rem;"><use href="./iconos.svg#elimina"/></svg></button>
             </td>
           </tr>
@@ -145,7 +145,7 @@
       });
     });
   });
-  $(document).on('click', '#editar', function() {
+  $(document).on('click', '#agregar', function() {
     $.ajax({
       type: 'POST',
       url: 'informe.php',
@@ -154,6 +154,20 @@
         $('#cuerpo').html(data);
       }
     });
+  });
+  $(document).on('click', '#eliminar', function() {
+    id = $(this).attr('data-id');
+    var opcion = confirm("¿Realmente desea eliminar este registro? Esta opción no se puede revertir.");
+    if (opcion == true) {
+      $.ajax({
+        type: 'POST',
+        url: 'archivos/funciones.php',
+        data: { id: $(this).attr('data-id'), funcion: 'eliminaJugador' },
+        success: function(data) {
+          $('#'+id).html(data);
+        }
+      });
+    } else {}
   });
   $('#formularioJugador').submit(function(event) {
     var parametros = $(this).serialize() + '&funcion=nuevoJugador';

@@ -39,7 +39,7 @@
                   <div class="divider"></div>
                   <h5 class="card-tittle"><?php echo $serie['nombre']; echo ($serie['sexo'] == 'F') ? ' Femenino' : ' Masculino'; ?></h5>
                   <div class="divider"></div>
-                  <span>(<?php echo $serie['jugadores']; ?>) Jugadores</span>
+                  <span><?php echo "(".$serie['jugadores'].") ".(($serie['jugadores']>1) ? "Jugadores" : "Jugador"); ?></span>
                 </div>
               </div>
             </div>

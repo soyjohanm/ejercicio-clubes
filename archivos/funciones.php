@@ -31,6 +31,18 @@
         $resultado = $conexion->query($sql) or die ('Error en el query database');
         if ($resultado) { echo "correcto"; }
         break;
+      case 'eliminaJugador':
+        session_start();
+        $id = $_POST['id'];
+        $serie = $_SESSION['serie'];
+        $sql = "DELETE FROM posicion WHERE id=$id";
+        $resultado = $conexion->query($sql) or die ('Error en el query database');
+        $sql = "DELETE FROM jugadores WHERE id=$id";
+        $resultado = $conexion->query($sql) or die ('Error en el query database');
+        $sql = "UPDATE series SET jugadores=jugadores-1 WHERE id=$serie";
+        $resultado = $conexion->query($sql) or die ('Error en el query database');
+        if ($resultado) { echo "<td colspan='8' style='text-align: center;'>Se han eliminado los datos.</td>"; }
+        break;
     }
   }
 ?>
