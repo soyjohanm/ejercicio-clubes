@@ -56,22 +56,22 @@
         <div class="divider"></div><br>
         <div class="container" style="width: 90% !important;">
           <div class="row">
-            <div class="col l6 m6 s12">
-              <fieldset style="padding-top: 4% !important; padding-bottom: 9% !important;">
+            <div class="input-field col l6 m12 s12">
+              <fieldset style="padding-top: 5% !important; padding-bottom: 9% !important;">
                 <legend>Nombre de la serie</legend>
                 <input name="nombreSerie" type="text" placeholder="Nombre de la serie." maxlength="20" required>
               </fieldset>
             </div>
-            <div class="col l6 m6 s12">
+            <div class="input-field col l6 m12 s12">
               <fieldset style="padding-top: 5% !important;">
                 <legend>Género</legend>
                 <div class="row genero">
-                  <div class="col l6">
+                  <div class="col l6 m6 s6">
                     <p>
                       <label><input type='checkbox' name='genero[]' value='F' class="filled-in" required><span>Femenino</span></label>
                     </p>
                   </div>
-                  <div class="col l6">
+                  <div class="col l6 m6 s6">
                     <p>
                       <label><input type='checkbox' name='genero[]' value='M' class="filled-in" required><span>Masculino</span></label>
                     </p>
